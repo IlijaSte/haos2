@@ -2,48 +2,47 @@
 
 public class BallBehaviour : MonoBehaviour {
 
-    public static Transform currTerrain;
-    public static bool spawnedNext = false;
-
-    public Transform startingTerrain;
     public float maxVelocityX;
     public float speed;
     public BallMovement bm;
+    public CameraMovement cm;
 
     private Rigidbody ballRb;
 
     private void Awake()
     {
-        currTerrain = startingTerrain;
         ballRb = GetComponent<Rigidbody>();
     }
 
-    private void OnCollisionEnter(Collision collision)
+    /*private void OnCollisionEnter(Collision collision)
     {
         if (currTerrain != collision.transform.parent)
         {
             currTerrain = collision.transform.parent;
             spawnedNext = false;
         }
-    }
+    }*/
 
     private void FixedUpdate()
     {
 
+        //ballRb.angularVelocity = cm.transform.right * ballRb.angularVelocity.magnitude;
+        
+        //ballRb.velocity = cm.transform.forward.normalized * ballRb.velocity.magnitude;
+
         if (ballRb.velocity.x < maxVelocityX)
-            ballRb.AddForce(transform.right.normalized * speed);
+            ballRb.AddForce(cm.transform.forward.normalized * speed);
 
         if (Input.GetMouseButton(0))
         {
             Vector2 localPoint = Vector2.zero;
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(bm.gameObject.GetComponent<RectTransform>(), new Vector2(Input.mousePosition.x, Input.mousePosition.y), bm.gameObject.GetComponentInParent<Canvas>().worldCamera, out localPoint))
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(bm.GetComponent<RectTransform>(), new Vector2(Input.mousePosition.x, Input.mousePosition.y), bm.GetComponentInParent<Canvas>().worldCamera, out localPoint))
             {
                 if (Mathf.Abs(localPoint.x) < bm.GetComponent<RectTransform>().rect.width / 2)
                 {
                     float rel = localPoint.x / (bm.GetComponent<RectTransform>().rect.width / 2);
 
                     float targetZ = -rel * 2;
-                    print(targetZ);
                     if (Mathf.Abs(transform.position.z - targetZ) > 0.1f && Mathf.Abs(transform.position.z) <= 2)
                     {
                         ballRb.MovePosition(new Vector3(transform.position.x, transform.position.y, transform.position.z + Mathf.Sign(targetZ - transform.position.z) * bm.steeringSensitivity * Time.deltaTime));
